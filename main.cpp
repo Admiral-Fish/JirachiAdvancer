@@ -8,7 +8,7 @@ using u8 = uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
 
-template <uint32_t add, uint32_t mult>
+template <u32 add, u32 mult>
 class LCRNG
 {
 public:
@@ -16,31 +16,31 @@ public:
     {
     }
 
-    void advanceFrames(uint32_t frames)
+    void advanceFrames(u32 frames)
     {
-        for (uint32_t frame = 0; frame < frames; frame++)
+        for (u32 frame = 0; frame < frames; frame++)
         {
             nextUInt();
         }
     }
 
-    uint16_t nextUShort()
+    u16 nextUShort()
     {
         return nextUInt() >> 16;
     }
 
-    uint32_t nextUInt()
+    u32 nextUInt()
     {
         return seed = seed * mult + add;
     }
 
-    uint32_t getSeed() const
+    u32 getSeed() const
     {
         return seed;
     }
 
 private:
-    uint32_t seed {};
+    u32 seed;
 };
 
 using XDRNG = LCRNG<0x269EC3, 0x343FD>;
