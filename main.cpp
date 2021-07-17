@@ -316,7 +316,7 @@ std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForc
     int menuCount = 0;
 
     // Use menu advances to get to a brute forcable range
-    while (targetFrame - menuFrame > bruteForce)
+    while (targetFrame > bruteForce + menuFrame)
     {
         menuCount++;
         advanceMenu(menu, menuFrame);
