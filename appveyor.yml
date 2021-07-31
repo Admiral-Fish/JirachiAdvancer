@@ -1,0 +1,42 @@
+environment:
+  matrix:
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    OS: win
+    VCVARSALLPATH: C:\"Program Files (x86)\Microsoft Visual Studio"\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
+    VCVARSALL: x64
+  - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu2004
+    OS: linux
+  - APPVEYOR_BUILD_WORKER_IMAGE: macos
+    OS: macOS
+    
+before_build:
+    - cmd: set PATH=%QTPATH%\bin;C:\Qt\Tools\QtCreator\bin;%PATH%
+    - cmd: call %VCVARSALLPATH% %VCVARSALL%
+    
+build_script:
+    - mkdir build
+    - cd build
+    - cmd: cmake -G"NMake Makefiles" -DCMAKE_BUILD_TYPE=RELEASE ../
+    - sh: cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=RELEASE ../ 
+    - cmake --build . -j 4
+    - ctest -V
+    
+after_build:
+    - cd ..
+    - cmd: move build\PokeFinder.exe JirachiAdvancer.exe
+    - cmd: 7z a JirachiAdvancer-win.zip JirachiAdvancer.exe
+    - cmd: sha256sum JirachiAdvancer-win.zip > JirachiAdvancer-win.zip.sha256
+    - sh: bash .ci/after_build.sh
+    
+artifacts:
+- path: JirachiAdvancer-%OS%.zip
+- path: JirachiAdvancer-%OS%.zip.sha256
+
+deploy:
+    provider: GitHub
+    description: ''
+    auth_token:
+        secure: SFsouaBlVG46u5QjtuDZMhTxq9FHVPr1BRF6YwNJhOtlj+vk707p3MEzHttr7Vep
+    artifact: JirachiAdvancer-%OS%.zip,JirachiAdvancer-%OS%.zip.sha256
+    on:
+        APPVEYOR_REPO_TAG: true
