@@ -54,6 +54,7 @@ void advanceCutscene(XDRNG &rng, u32 &count);
 void advanceTitleScreen(XDRNG &rng, u32 &count);
 u32 calculateFrame(u32 currentSeed, u32 targetSeed);
 std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForce);
+void increment_vector(std::vector<u8> &actions);
 
 int main()
 {
@@ -228,13 +229,13 @@ bool validateMenu(u32 seed)
 void advanceMenu(XDRNG &rng, u32 &count)
 {
     u8 mask = 0;
-    while ((mask & 14) != 14)
+    do
     {
         u8 num = rng.nextUInt() >> 30;
         count++;
 
         mask |= 1 << num;
-    }
+    } while ((mask & 14) != 14);
 }
 
 // Advances prng of jirachi flying on screen
@@ -244,18 +245,28 @@ void advanceJirachi(XDRNG &rng, u32 &count)
     count += 4;
 
     bool flag = false;
-    for (u16 thresh : { 0x4000, 0x547a })
+
+    count++;
+    if (rng.nextUShort() <= 0x4000)
+    {
+        flag = true;
+    }
+    else
     {
         count++;
-        if (rng.nextUShort() <= thresh)
-        {
-            flag = true;
-            break;
-        }
+        flag = rng.nextUShort() <= 0x547a;
     }
 
-    rng.advanceFrames(flag ? 1 : 2);
-    count += flag ? 1 : 2;
+    if (flag)
+    {
+        rng.advanceFrames(1);
+        count++;
+    }
+    else
+    {
+        rng.advanceFrames(2);
+        count += 2;
+    }
 }
 
 // Advances prng of special cutscene playing
@@ -288,7 +299,6 @@ u32 calculateFrame(u32 currentSeed, u32 targetSeed)
 }
 
 // Attempts to calculate an action plan to get to a target seed given a current seed
-// For computational reasons current and target are only allowed to be 5000 frames apart
 std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForce)
 {
     // Not possible, fail early
@@ -358,7 +368,7 @@ std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForc
 
                 // Make sure didn't go over frame
                 // Add 6 since that is the minimum an accept can advance
-                if ((searchFrame + 6) >= targetFrame)
+                if ((searchFrame + 6) > targetFrame)
                 {
                     flag = true;
                     break;
@@ -380,35 +390,19 @@ std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForc
                     std::vector<u8> actions(static_cast<size_t>(menuCount) + searchActions.size(), 0);
 
                     // Copy over the search actions
-                    std::copy(searchActions.begin(), searchActions.end(), actions.begin() + menuCount);
+                    std::copy(searchActions.cbegin(), searchActions.cend(), actions.begin() + menuCount);
 
                     return actions;
                 }
             }
 
             // Exit loop once all possibilities have been attempted
-            if (std::count(searchActions.begin(), searchActions.end(), 2) == i)
+            if (std::count(searchActions.cbegin(), searchActions.cend(), 2) == i)
             {
                 break;
             }
 
-            // This loop handles setting and iterating through the possible search actions
-            for (size_t j = 0; j < searchActions.size(); j++)
-            {
-                if (searchActions.at(j) == 2)
-                {
-                    searchActions[j] = 0;
-
-                    if (j != searchActions.size() - 1)
-                    {
-                        searchActions[j + 1]++;
-                    }
-                }
-                else
-                {
-                    searchActions[j]++;
-                }
-            }
+            increment_vector(searchActions);
         }
 
         if (done)
@@ -419,4 +413,35 @@ std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForc
 
     // If we get to this point then it is extremely unlikely to get to the the target seed from the current seed
     return {};
+}
+
+void increment_vector(std::vector<u8> &actions)
+{
+    size_t size = actions.size();
+    if (size == 1)
+    {
+        actions[0]++;
+        return;
+    }
+
+    bool increment = true;
+    for (int i = 0; i < size; i++)
+    {
+        u8 compare = i == 0 ? 2 : 3;
+        if (actions[i] >= compare)
+        {
+            increment = false;
+
+            actions[i] = 0;
+            if (i != size - 1)
+            {
+                actions[i + 1]++;
+            }
+        }
+        else if (increment)
+        {
+            actions[i]++;
+            break;
+        }
+    }
 }
