@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "version.h"
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -58,6 +59,11 @@ void increment_vector(std::vector<u8> &actions);
 
 int main()
 {
+    std::cout << "Jirachi Advancer" << std::endl;
+    std::cout << "Branch: " << GIT_BRANCH << std::endl;
+    std::cout << "Commit: " << GIT_COMMIT << std::endl;
+    std::cout << std::endl << std::endl;
+
     int go = 1;
 
     while (go == 1)
