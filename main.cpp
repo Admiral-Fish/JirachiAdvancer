@@ -324,7 +324,7 @@ std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForc
 
     XDRNG menu(currentSeed);
     u32 menuFrame = 0;
-    int menuCount = 0;
+    size_t menuCount = 0;
 
     // Use menu advances to get to a brute forcable range
     while (targetFrame > bruteForce + menuFrame)
@@ -388,7 +388,7 @@ std::vector<u8> calculateActions(u32 currentSeed, u32 targetFrame, u32 bruteForc
                 if (searchFrame == targetFrame)
                 {
                     // Vector is constructed in the way that the initial menu advances are already set
-                    std::vector<u8> actions(static_cast<size_t>(menuCount) + searchActions.size(), 0);
+                    std::vector<u8> actions(menuCount + searchActions.size(), 0);
 
                     // Copy over the search actions
                     std::copy(searchActions.cbegin(), searchActions.cend(), actions.begin() + menuCount);
