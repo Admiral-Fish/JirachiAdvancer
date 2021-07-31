@@ -23,7 +23,7 @@ build_script:
     
 after_build:
     - cd ..
-    - cmd: move build\PokeFinder.exe JirachiAdvancer.exe
+    - cmd: move build\JirachiAdvancer.exe JirachiAdvancer.exe
     - cmd: 7z a JirachiAdvancer-win.zip JirachiAdvancer.exe
     - cmd: sha256sum JirachiAdvancer-win.zip > JirachiAdvancer-win.zip.sha256
     - sh: bash .ci/after_build.sh
