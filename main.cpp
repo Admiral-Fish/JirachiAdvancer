@@ -200,21 +200,16 @@ bool validateJirachi(u32 seed)
 // Menu will advance the prng until it collects a 1, 2, and 3
 bool validateMenu(u32 seed)
 {
-    u8 mask = 0;
-    u8 target = seed >> 30;
-
     // Impossible to stop 0
+    u8 target = seed >> 30;
     if (target == 0)
     {
         return false;
     }
-    else
-    {
-        mask |= 1 << target;
-    }
-
-    auto rng = XDRNGR(seed);
-    while ((mask & 14) != 14)
+    
+    u8 mask = 1 << target;
+    XDRNGR rng(seed);
+    do
     {
         u8 num = rng.nextUInt() >> 30;
 
@@ -226,7 +221,7 @@ bool validateMenu(u32 seed)
         }
 
         mask |= 1 << num;
-    }
+    } while ((mask & 14) != 14);
 
     return true;
 }
