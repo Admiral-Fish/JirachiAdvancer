@@ -1,9 +1,9 @@
+#include "version.h"
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>
-#include "version.h"
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -79,7 +79,6 @@ int main()
         }
         else
         {
-
             std::cout << "Target seed: 0x";
             std::cin >> input;
             u32 targetSeed = std::stoul(input, nullptr, 16);
@@ -206,7 +205,7 @@ bool validateMenu(u32 seed)
     {
         return false;
     }
-    
+
     u8 mask = 1 << target;
     XDRNGR rng(seed);
     do
