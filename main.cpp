@@ -113,35 +113,33 @@ int main()
                     {
                         std::cout << std::endl;
 
-                        int number = 1;
                         if (path[0] != 255)
                         {
-                            for (u8 action : path)
+                            for (size_t i = 0; i < path.size();)
                             {
+                                int count = 0;
+                                int action = path[i];
+                                while (i < path.size() && action == path[i])
+                                {
+                                    count++;
+                                    i++;
+                                }
+
                                 if (action == 0)
                                 {
-                                    std::cout << number++ << ": Reload Menu";
+                                    std::cout << "Reload menu: " << count << " times" << std::endl;
                                 }
                                 else if (action == 1)
                                 {
-                                    std::cout << number++ << ": Reject Jirachi";
+                                    std::cout << "Reject Jirachi: " << count << " times" << std::endl;
                                 }
-                                else
+                                else if (action == 2)
                                 {
-                                    std::cout << number++ << ": Exit Special cutscene";
-                                }
-
-                                if (number % 5 == 0)
-                                {
-                                    std::cout << std::endl;
-                                }
-                                else
-                                {
-                                    std::cout << " ";
+                                    std::cout << "Exit Special cutscene: " << count << " times" << std::endl;
                                 }
                             }
                         }
-                        std::cout << number++ << ": Accept Jirachi" << std::endl;
+                        std::cout << "Accept Jirachi" << std::endl;
                     }
                 }
             }
